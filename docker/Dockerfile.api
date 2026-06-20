@@ -1,0 +1,37 @@
+# =============================================================
+# Dockerfile — FastAPI DDoS Inference Server
+# Build context is the PROJECT ROOT (see docker-compose.yml).
+# =============================================================
+FROM python:3.11-slim AS base
+
+# libgomp1 is required by XGBoost's OpenMP runtime.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# --- dependency layer (cached unless requirements change) ---
+COPY requirements-base.txt requirements-api.txt ./
+RUN pip install --upgrade pip && pip install -r requirements-api.txt
+
+# --- application code ---
+# Only the packages the API actually imports.
+COPY utils/        ./utils/
+COPY ml_training/  ./ml_training/
+COPY api_server/   ./api_server/
+
+# Models are provided at runtime via a mounted volume, not baked in.
+RUN mkdir -p /app/models /app/logs
+
+EXPOSE 8000
+
+# Container-level liveness check — Compose uses this for ordering.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "api_server.app:app", "--host", "0.0.0.0", "--port", "8000"]

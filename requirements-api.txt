@@ -1,0 +1,5 @@
+# API service dependencies (installed on top of requirements-base.txt)
+-r requirements-base.txt
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.5

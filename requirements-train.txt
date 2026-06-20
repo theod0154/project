@@ -1,0 +1,4 @@
+# Training pipeline dependencies (includes visualisation stack)
+-r requirements-base.txt
+matplotlib>=3.7
+seaborn>=0.12

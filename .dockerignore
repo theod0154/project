@@ -1,0 +1,18 @@
+# Keep Docker build context small and images clean.
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.git/
+.gitignore
+*.md
+logs/*
+ddos_results/*
+data/*
+models/*
+tests/
+.env
+venv/
+.venv/
+*.egg-info/
+.DS_Store

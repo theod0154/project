@@ -1,0 +1,29 @@
+# =============================================================
+# Dockerfile — Traffic Replay Simulator
+# Optional service: replays labeled dataset flows to the API.
+# Build context is the PROJECT ROOT.
+# =============================================================
+FROM python:3.11-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+COPY requirements-base.txt requirements-sim.txt ./
+RUN pip install --upgrade pip && pip install -r requirements-sim.txt
+
+COPY utils/        ./utils/
+COPY ml_training/  ./ml_training/
+COPY simulation/   ./simulation/
+
+RUN mkdir -p /app/data /app/logs
+
+# Dataset is mounted at runtime. The simulator is started manually
+# (docker compose run simulation) so it doesn't auto-spam the API.
+CMD ["python", "-m", "simulation.replayer"]

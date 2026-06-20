@@ -1,0 +1,84 @@
+# =============================================================
+# docker-compose.yml — Cloud DDoS Detection System
+#
+#   docker compose up --build           -> API + dashboard
+#   docker compose run --rm simulation  -> replay traffic on demand
+#
+# The model artifact is shared between training (host) and the API
+# via the ./models bind-mount. Train first, then bring the stack up.
+# =============================================================
+
+services:
+
+  # ---- FastAPI inference server -------------------------------------
+  api_server:
+    build:
+      context: ..                       # project root
+      dockerfile: docker/Dockerfile.api
+    image: ddos-api:1.0.0
+    container_name: ddos_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../models:/app/models:ro        # trained artifact (read-only)
+      - ../logs:/app/logs               # logs written back to host
+    environment:
+      - DDOS_MODEL_DIR=/app/models
+      - DDOS_LOG_DIR=/app/logs
+      - DDOS_ALERT_THRESHOLD=0.75
+      - DDOS_LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - ddos_net
+
+  # ---- Streamlit monitoring dashboard -------------------------------
+  dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dashboard
+    image: ddos-dashboard:1.0.0
+    container_name: ddos_dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      # talk to the API by its compose service name, not localhost
+      - DDOS_API_URL=http://api_server:8000
+    depends_on:
+      api_server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ddos_net
+
+  # ---- Traffic replay simulator (run on demand) ---------------------
+  simulation:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.simulation
+    image: ddos-simulation:1.0.0
+    container_name: ddos_simulation
+    volumes:
+      - ../data:/app/data:ro            # dataset for sampling rows
+      - ../logs:/app/logs
+    environment:
+      - DDOS_API_URL=http://api_server:8000
+      - DDOS_DATASET_PATH=/app/data/BCCC-cPacket-Cloud-DDoS-2024
+      - DDOS_SIM_SPEED=15
+      - DDOS_SIM_DURATION=120
+    depends_on:
+      api_server:
+        condition: service_healthy
+    # 'profiles' keeps this service from auto-starting with `up`.
+    profiles: ["tools"]
+    networks:
+      - ddos_net
+
+networks:
+  ddos_net:
+    driver: bridge

@@ -1,0 +1,3 @@
+# Simulation client dependencies
+-r requirements-base.txt
+requests>=2.31

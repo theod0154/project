@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+
+# Large dataset & archive
+bccc-cpacket-cloud-ddos-2024.csv
+ddos.tar.gz
+
+# Trained models (том checkpoint-ууд)
+models/
+
+# Logs
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS junk
+.DS_Store
+bccc-cpacket-cloud-ddos-2024.csv
+ddos.tar.gz

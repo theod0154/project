@@ -1,0 +1,43 @@
+# =============================================================
+# config.yaml — optional configuration overrides
+#
+# Every value here overrides the dataclass defaults in utils/config.py.
+# Environment variables override this file in turn. Delete or comment
+# any key to fall back to the coded default.
+# =============================================================
+
+data:
+  dataset_path: data/BCCC-cPacket-Cloud-DDoS-2024
+  sample_frac: 1.0          # use 0.1-0.3 for fast experiments
+  test_size: 0.2
+  random_state: 42
+
+model:
+  # Random Forest
+  rf_n_estimators: 300
+  rf_max_depth: 22
+  # XGBoost
+  xgb_n_estimators: 400
+  xgb_max_depth: 8
+  xgb_learning_rate: 0.08
+  # Ensemble blend (must sum to 1.0)
+  rf_weight: 0.5
+  xgb_weight: 0.5
+  decision_threshold: 0.50
+  cv_folds: 5
+  model_dir: models
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  alert_threshold: 0.75     # confidence at/above which an alert is raised
+  metrics_window: 1000
+
+sim:
+  api_url: http://localhost:8000
+  flows_per_second: 15
+  duration_seconds: 120
+
+log_level: INFO
+log_dir: logs
+output_dir: ddos_results
