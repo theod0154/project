@@ -63,15 +63,15 @@
                                     └────────────┬─────────────┘
                                                  │
                                     ┌────────────▼─────────────┐
-                                    │   Perimeter Firewall      │  (FortiGate / pfSense pair, HA)
-                                    │   IDS/IPS, WAF rules       │
+                                    │   Perimeter Firewall     │  (FortiGate / pfSense pair, HA)
+                                    │   IDS/IPS, WAF rules     │
                                     └────────────┬─────────────┘
                                                  │  VIP 10.10.10.10 (Keepalived VRRP)
                           ┌──────────────────────┼──────────────────────┐
                           │                                             │
                 ┌─────────▼─────────┐                         ┌─────────▼─────────┐
-                │   HAProxy-01       │◄──── VRRP heartbeat ───►│   HAProxy-02       │
-                │   (MASTER)         │      (keepalived)        │   (BACKUP)         │
+                │   HAProxy-01      │◄──── VRRP heartbeat ───►│   HAProxy-02      │
+                │   (MASTER)        │      (keepalived)       │   (BACKUP)        │
                 └─────────┬─────────┘                         └─────────┬─────────┘
                           │                                             │
                           └───────────────────┬─────────────────────────┘
@@ -79,9 +79,9 @@
                   ┌────────────────────────────┼────────────────────────────┐
                   │                            │                            │
          ┌─────────▼─────────┐       ┌─────────▼─────────┐       ┌─────────▼─────────┐
-         │  Control Plane 1   │       │  Control Plane 2   │       │  Control Plane 3   │
-         │  kube-apiserver    │       │  kube-apiserver    │       │  kube-apiserver    │
-         │  scheduler/ctrlmgr │       │  scheduler/ctrlmgr │       │  scheduler/ctrlmgr │
+         │ Control Plane 1   │       │ Control Plane 2   │       │ Control Plane 3   │
+         │ kube-apiserver    │       │ kube-apiserver    │       │ kube-apiserver    │
+         │ scheduler/ctrlmgr │       │ scheduler/ctrlmgr │       │ scheduler/ctrlmgr │
          └─────────┬─────────┘       └─────────┬─────────┘       └─────────┬─────────┘
                    │                           │                           │
                    └─────────────┬─────────────┴─────────────┬─────────────┘
